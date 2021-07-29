@@ -640,7 +640,7 @@ var data = {
           _index: "ad-intercept",
           _type: "user",
           _source: {
-            esDocId: "Sarita.Bailey@Acme-Labs.Local",
+            esDocId: "Sarita.Ba/iley@Acme-Labs.Local",
             privilegedGroups: [
               {
                 domain: "Acme-Labs.Local",
@@ -653,7 +653,7 @@ var data = {
                 dn: "CN=Enterprise Admins,CN=Users,DC=Acme-Labs,DC=Local"
               }
             ],
-            upn: "Sarita.Bailey@Acme-Labs.Local",
+            upn: "Sarita.Ba/iley@Acme-Labs.Local",
             isManagedServiceAccount: true,
             isPrivilegedAccount: true,
             memberOf:
@@ -661,7 +661,7 @@ var data = {
             userName: "Sarita.Bailey",
             adDomain: "Acme-Labs.Local"
           },
-          _id: "Sarita.Bailey@Acme-Labs.Local",
+          _id: "Sarita.Ba/iley@Acme-Labs.Local",
           sort: ["users"],
           _score: null
         },
