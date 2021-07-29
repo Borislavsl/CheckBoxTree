@@ -40,7 +40,7 @@ const updateChildrenChecked = (children, checked) => {
   if (children) {
     for (let child of children) {
       child.selectedCount = checked ? child.count : 0;
-      updateChildrenChecked(child.children);
+      updateChildrenChecked(child.children, checked);
     }
   }
 };
