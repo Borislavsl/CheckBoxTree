@@ -25,11 +25,12 @@ export const build = () => {
     },
   ];
 
-  initNodes(nodes);
-  return nodes;
+  let flattenNodes = {};
+  initNodes(nodes, flattenNodes, null);
+  return [nodes, flattenNodes];
 };
 
-const initNodes = (nodes, parents) => {
+const initNodes = (nodes, flattenNodes, parents) => {
   let totalCount = 0;
 
   for (let n of nodes) {
@@ -41,10 +42,12 @@ const initNodes = (nodes, parents) => {
     if (n.children) {
       if (parents) childParents = parents.concat(childParents);
 
-      n.count = initNodes(n.children, childParents);
+      n.count = initNodes(n.children, flattenNodes, childParents);
     } else {
       n.count = 1;
     }
+
+    flattenNodes[n.value] = n;
     totalCount += n.count;
   }
   return totalCount;
@@ -62,8 +65,7 @@ const composeValue = (parents, label) => {
   return value;
 };
 
-export const updateSelectedCounts = (nodes, value, checked) => {
-  const node = getNode(nodes, value);
+export const updateSelectedCounts = (node, checked) => {
   if (node) {
     const parents = node.parents;
     if (parents) {
@@ -89,15 +91,14 @@ const updateChildrenChecked = (children, checked) => {
   }
 };
 
-const getNode = (nodes, value) => {
+export const produceRootCheckedArray = (nodes) => {
+  let rootChecked = [];
   if (nodes) {
     for (let n of nodes) {
-      if (n.value === value) return n;
-
-      const node = getNode(n.children, value);
-      if (node) return node;
+      if (n.selectedCount == n.count) rootChecked.push(n.value);
+      else if (n.selectedCount > 0)
+        rootChecked = rootChecked.concat(produceRootCheckedArray(n.children));
     }
   }
-
-  return null;
+  return rootChecked;
 };
