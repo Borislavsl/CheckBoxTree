@@ -1,13 +1,45 @@
-export const initNodes = (nodes, parents) => {
+export const build = () => {
+  let nodes = [
+    {
+      label: "Sol System",
+      children: [
+        { label: "Mercury" },
+        {
+          label: "Jupiter",
+          children: [
+            {
+              label: "Io",
+              children: [
+                {
+                  label: "SubIo1",
+                },
+                {
+                  label: "SubIo2",
+                },
+              ],
+            },
+            { label: "Europa" },
+          ],
+        },
+      ],
+    },
+  ];
+
+  initNodes(nodes);
+  return nodes;
+};
+
+const initNodes = (nodes, parents) => {
   let totalCount = 0;
 
   for (let n of nodes) {
-    n.parents = parents;
+    n.value = composeValue(parents, n.label);
     n.selectedCount = 0;
-    let childParents = [n];
+    n.parents = parents;
 
+    let childParents = [n];
     if (n.children) {
-      if (parents) childParents = childParents.concat(parents);
+      if (parents) childParents = parents.concat(childParents);
 
       n.count = initNodes(n.children, childParents);
     } else {
@@ -16,6 +48,18 @@ export const initNodes = (nodes, parents) => {
     totalCount += n.count;
   }
   return totalCount;
+};
+
+const composeValue = (parents, label) => {
+  let value = "";
+  if (parents) {
+    for (let i = 0; i < parents.length; i++) {
+      value += parents[i].label.toLowerCase() + "%*";
+    }
+  }
+  value += label.toLowerCase();
+
+  return value;
 };
 
 export const updateSelectedCounts = (nodes, value, checked) => {
