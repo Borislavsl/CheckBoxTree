@@ -1,36 +1,24 @@
-export const build = () => {
-  let nodes = [
-    {
-      label: "Sol System",
-      children: [
-        { label: "Mercury" },
-        {
-          label: "Jupiter",
-          children: [
-            {
-              label: "Io",
-              children: [
-                {
-                  label: "SubIo1",
-                },
-                {
-                  label: "SubIo2",
-                },
-              ],
-            },
-            { label: "Europa" },
-          ],
-        },
-      ],
-    },
-  ];
-
+export const build = (input) => {
+  let nodes = initNodes(input);
   let flattenNodes = {};
-  initNodes(nodes, flattenNodes, null);
+  prepareNodes(nodes, flattenNodes, null);
   return [nodes, flattenNodes];
 };
 
-const initNodes = (nodes, flattenNodes, parents) => {
+const initNodes = (input) => {
+  let nodes = [];
+  for (let i of input) {
+    let n = {};
+    n.label = i.title + " (" + i.count + ")";
+
+    if (i.Children.length > 0) n.children = initNodes(i.Children);
+
+    nodes.push(n);
+  }
+  return nodes;
+};
+
+const prepareNodes = (nodes, flattenNodes, parents) => {
   let totalCount = 0;
 
   for (let n of nodes) {
@@ -38,17 +26,17 @@ const initNodes = (nodes, flattenNodes, parents) => {
     n.selectedCount = 0;
     n.parents = parents;
 
-    let childParents = [n];
     if (n.children) {
+      let childParents = [n];
       if (parents) childParents = parents.concat(childParents);
 
-      n.count = initNodes(n.children, flattenNodes, childParents);
+      n.childCount = prepareNodes(n.children, flattenNodes, childParents);
     } else {
-      n.count = 1;
+      n.childCount = 1;
     }
 
     flattenNodes[n.value] = n;
-    totalCount += n.count;
+    totalCount += n.childCount;
   }
   return totalCount;
 };
@@ -57,10 +45,10 @@ const composeValue = (parents, label) => {
   let value = "";
   if (parents) {
     for (let i = 0; i < parents.length; i++) {
-      value += parents[i].label.toLowerCase() + "%*";
+      value += parents[i].label + "%*";
     }
   }
-  value += label.toLowerCase();
+  value += label;
 
   return value;
 };
@@ -70,13 +58,13 @@ export const updateSelectedCounts = (node, checked) => {
     const parents = node.parents;
     if (parents) {
       const changeCount = checked
-        ? node.count - node.selectedCount
+        ? node.childCount - node.selectedCount
         : -node.selectedCount;
 
       for (let parent of parents) parent.selectedCount += changeCount;
     }
 
-    node.selectedCount = checked ? node.count : 0;
+    node.selectedCount = checked ? node.childCount : 0;
 
     updateChildrenChecked(node.children, checked);
   }
@@ -85,7 +73,7 @@ export const updateSelectedCounts = (node, checked) => {
 const updateChildrenChecked = (children, checked) => {
   if (children) {
     for (let child of children) {
-      child.selectedCount = checked ? child.count : 0;
+      child.selectedCount = checked ? child.childCount : 0;
       updateChildrenChecked(child.children, checked);
     }
   }
@@ -95,7 +83,7 @@ export const produceRootCheckedArray = (nodes) => {
   let rootChecked = [];
   if (nodes) {
     for (let n of nodes) {
-      if (n.selectedCount == n.count) rootChecked.push(n.value);
+      if (n.selectedCount == n.childCount) rootChecked.push(n.value);
       else if (n.selectedCount > 0)
         rootChecked = rootChecked.concat(produceRootCheckedArray(n.children));
     }

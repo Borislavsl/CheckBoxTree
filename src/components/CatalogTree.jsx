@@ -7,8 +7,8 @@ import {
   produceRootCheckedArray,
 } from "../NodesUtil";
 
-const Widget = () => {
-  const [[nodes, flattenNodes], setNodes] = useState(build());
+const CatalogTree = ({ input }) => {
+  const [[nodes, flattenNodes], setNodes] = useState(build(input));
   const [expanded, setExpanded] = useState([]);
   const [checked, setChecked] = useState([]);
 
@@ -41,4 +41,4 @@ const Widget = () => {
   );
 };
 
-export default Widget;
+export default CatalogTree;
