@@ -9,12 +9,13 @@
     "@fortawesome/free-brands-svg-icons": "5.14.0",
     "@fortawesome/free-solid-svg-icons": "5.14.0",
     "@fortawesome/react-fontawesome": "0.1.11",
+    "axios": "^0.21.1",
     "font-awesome": "4.7.0",
     "react": "16.8.6",
     "react-checkbox-tree": "1.7.1",
     "react-dom": "16.8.6",
-    "react-scripts": "4.0.3",
     "react-fontawesome": "1.7.1",
+    "react-scripts": "4.0.3",
     "semantic-ui-react": "0.88.2"
   },
   "scripts": {

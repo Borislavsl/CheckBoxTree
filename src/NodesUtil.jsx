@@ -46,12 +46,17 @@ const composeValue = (parents, label) => {
   let value = "";
   if (parents) {
     for (let i = 0; i < parents.length; i++) {
-      value += parents[i].label + "%*";
+      value += valueLabel(parents[i].label) + "%*";
     }
   }
-  value += label;
+  value += valueLabel(label);
 
   return value;
+};
+
+const valueLabel = (label) => {
+  const leftBracket = label.lastIndexOf(" (");
+  return label.substring(0, leftBracket);
 };
 
 export const updateSelectedCounts = (node, checked) => {

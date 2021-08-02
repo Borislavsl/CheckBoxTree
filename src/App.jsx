@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { render } from "react-dom";
+import axios from "axios";
 import "./styles.css";
-import { inputApplication } from "./inputApplication";
-import { inputCatalog } from "./inputCatalog";
-import { inputSupplier } from "./inputSupplier";
-import { inputPriceRange } from "./inputPriceRange";
-
+import { inputApplication } from "./jsonInputs/inputApplication";
+import { inputCatalog } from "./jsonInputs/inputCatalog";
+import { inputSupplier } from "./jsonInputs/inputSupplier";
+import { inputPriceRange } from "./jsonInputs/inputPriceRange";
+import { dynamicSearchRequest } from "./requests/dynamicSearch";
 import CatalogTree from "./components/CatalogTree";
 
 render(<CatalogTree input={inputCatalog} />, document.getElementById("root"));
@@ -20,6 +21,22 @@ function App() {
     console.log(catalogChecked);
     console.log(supplierChecked);
     console.log(priceRangeChecked);
+    const dynamicSearch = async () => {
+      dynamicSearchRequest.ApplicationFilter = applicationChecked;
+      dynamicSearchRequest.CatalogFilter = catalogChecked;
+      dynamicSearchRequest.SupplierFilter = supplierChecked;
+      dynamicSearchRequest.PriceFilter = priceRangeChecked;
+      try {
+        const response = await axios.post(
+          "http://localhost:37481/DynamicSearch/Items",
+          dynamicSearchRequest
+        );
+        console.log(response.data);
+      } catch (error) {
+        console.log(error.response);
+      }
+    };
+    dynamicSearch();
     return () => {};
   }, [applicationChecked, catalogChecked, supplierChecked, priceRangeChecked]);
 
@@ -47,13 +64,15 @@ function App() {
         onFilterChecked={onApplicationChecked}
       />
       <br />
+
       <h1>Catalogs</h1>
       <CatalogTree input={inputCatalog} onFilterChecked={onCatalogChecked} />
       <br />
-      <h1>Suppliers</h1>
 
+      <h1>Suppliers</h1>
       <CatalogTree input={inputSupplier} onFilterChecked={onSupplierChecked} />
       <br />
+
       <h1>PriceRange</h1>
       <CatalogTree
         input={inputPriceRange}
