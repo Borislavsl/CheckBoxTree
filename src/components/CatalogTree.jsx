@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import CheckboxTree from "react-checkbox-tree";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
 import {
@@ -7,19 +7,16 @@ import {
   produceRootCheckedArray,
 } from "../NodesUtil";
 
-const CatalogTree = ({ input }) => {
+const CatalogTree = ({ input, onFilterChecked }) => {
   const [[nodes, flattenNodes], setNodes] = useState(build(input));
   const [expanded, setExpanded] = useState([]);
   const [checked, setChecked] = useState([]);
 
   const onCheck = (checked, targetNode) => {
     setChecked(checked);
-    console.log(checked);
-    console.log(targetNode);
     updateSelectedCounts(flattenNodes[targetNode.value], targetNode.checked);
-    console.log(nodes);
     let rootChecked = produceRootCheckedArray(nodes);
-    console.log(rootChecked);
+    onFilterChecked(rootChecked);
   };
 
   const onExpand = (expanded) => {

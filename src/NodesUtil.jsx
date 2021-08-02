@@ -1,5 +1,6 @@
 export const build = (input) => {
-  let nodes = initNodes(input);
+  const inputObject = JSON.parse(input);
+  let nodes = initNodes(inputObject);
   let flattenNodes = {};
   prepareNodes(nodes, flattenNodes, null);
   return [nodes, flattenNodes];
@@ -9,9 +10,9 @@ const initNodes = (input) => {
   let nodes = [];
   for (let i of input) {
     let n = {};
-    n.label = i.title + " (" + i.count + ")";
+    n.label = i.title + (i.count ? " (" + i.count + ")" : "");
 
-    if (i.Children.length > 0) n.children = initNodes(i.Children);
+    if (i.Children?.length > 0) n.children = initNodes(i.Children);
 
     nodes.push(n);
   }
