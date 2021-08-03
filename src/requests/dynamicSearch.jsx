@@ -28,8 +28,8 @@ export const composeDynamicSearchRequest = (
   const filters = {
     ApplicationFilter: applicationChecked,
     CatalogFilter: catalogChecked,
-    PriceFilter: supplierChecked,
-    SupplierFilter: priceRangeChecked,
+    SupplierFilter: supplierChecked,
+    PriceFilter: priceRangeChecked,
   };
 
   return { ...dynamicSearchRequest, ...filters };
