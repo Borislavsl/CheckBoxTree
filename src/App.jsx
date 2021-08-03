@@ -6,27 +6,26 @@ import { inputApplication } from "./jsonInputs/inputApplication";
 import { inputCatalog } from "./jsonInputs/inputCatalog";
 import { inputSupplier } from "./jsonInputs/inputSupplier";
 import { inputPriceRange } from "./jsonInputs/inputPriceRange";
-import { dynamicSearchRequest } from "./requests/dynamicSearch";
+import { composeDynamicSearchRequest } from "./requests/dynamicSearch";
 import CatalogTree from "./components/CatalogTree";
 
 render(<CatalogTree input={inputCatalog} />, document.getElementById("root"));
 function App() {
-  const [applicationChecked, setApplicationChecked] = useState("");
-  const [catalogChecked, setCatalogChecked] = useState("");
-  const [supplierChecked, setSupplierChecked] = useState("");
-  const [priceRangeChecked, setPriceRangeChecked] = useState("");
+  const [applicationChecked, setApplicationChecked] = useState([]);
+  const [catalogChecked, setCatalogChecked] = useState([]);
+  const [supplierChecked, setSupplierChecked] = useState([]);
+  const [priceRangeChecked, setPriceRangeChecked] = useState([]);
 
   useEffect(() => {
-    console.log(applicationChecked);
-    console.log(catalogChecked);
-    console.log(supplierChecked);
-    console.log(priceRangeChecked);
     const dynamicSearch = async () => {
-      dynamicSearchRequest.ApplicationFilter = applicationChecked;
-      dynamicSearchRequest.CatalogFilter = catalogChecked;
-      dynamicSearchRequest.SupplierFilter = supplierChecked;
-      dynamicSearchRequest.PriceFilter = priceRangeChecked;
       try {
+        const dynamicSearchRequest = composeDynamicSearchRequest(
+          applicationChecked,
+          catalogChecked,
+          supplierChecked,
+          priceRangeChecked
+        );
+        console.log(dynamicSearchRequest);
         const response = await axios.post(
           "http://localhost:37481/DynamicSearch/Items",
           dynamicSearchRequest

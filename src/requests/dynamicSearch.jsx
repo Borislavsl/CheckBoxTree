@@ -1,4 +1,4 @@
-export const dynamicSearchRequest = {
+const dynamicSearchRequest = {
   StartRow: 0,
   EndRow: 10,
   ExcludeCatalogSearch: true,
@@ -17,4 +17,20 @@ export const dynamicSearchRequest = {
   CatalogFilter: [],
   PriceFilter: [],
   SupplierFilter: [],
+};
+
+export const composeDynamicSearchRequest = (
+  applicationChecked,
+  catalogChecked,
+  supplierChecked,
+  priceRangeChecked
+) => {
+  const filters = {
+    ApplicationFilter: applicationChecked,
+    CatalogFilter: catalogChecked,
+    PriceFilter: supplierChecked,
+    SupplierFilter: priceRangeChecked,
+  };
+
+  return { ...dynamicSearchRequest, ...filters };
 };
