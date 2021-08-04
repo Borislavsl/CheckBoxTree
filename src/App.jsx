@@ -11,6 +11,7 @@ import CatalogTree from "./components/CatalogTree";
 
 render(<CatalogTree input={inputCatalog} />, document.getElementById("root"));
 function App() {
+  const [isPostBack, setIsPostBack] = useState(false);
   const [applicationChecked, setApplicationChecked] = useState([]);
   const [catalogChecked, setCatalogChecked] = useState([]);
   const [supplierChecked, setSupplierChecked] = useState([]);
@@ -35,7 +36,11 @@ function App() {
         console.log(error.response);
       }
     };
-    dynamicSearch();
+    if (isPostBack) {
+      dynamicSearch();
+    } else {
+      setIsPostBack(true);
+    }
     return () => {};
   }, [applicationChecked, catalogChecked, supplierChecked, priceRangeChecked]);
 
