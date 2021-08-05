@@ -11,12 +11,14 @@ export const build = (input, checked) => {
 const initNodes = (input) => {
   let nodes = [];
   for (let i of input) {
-    let n = {};
-    n.label = i.label + (i.count ? " (" + i.count + ")" : "");
+    if (i.count && i.count > 0) {
+      let n = {};
+      n.label = i.label + (i.count ? " (" + i.count + ")" : "");
 
-    if (i.items?.length > 0) n.children = initNodes(i.items);
+      if (i.items?.length > 0) n.children = initNodes(i.items);
 
-    nodes.push(n);
+      nodes.push(n);
+    }
   }
   return nodes;
 };
@@ -59,12 +61,7 @@ const composeValue = (parents, label) => {
 
 const valueLabel = (label) => {
   let leftBracket = label.lastIndexOf(" (");
-  if (leftBracket <= 0) {
-    leftBracket = label.lastIndexOf("(");
-  }
-  if (leftBracket <= 0) {
-    return label;
-  }
+
   return label.substring(0, leftBracket);
 };
 
