@@ -1,8 +1,10 @@
-export const build = (input) => {
-  const inputObject = JSON.parse(input);
-  let nodes = initNodes(inputObject);
+export const build = (input, checked) => {
+  let nodes = initNodes(input);
   let flattenNodes = {};
   prepareNodes(nodes, flattenNodes, null);
+
+  updateSelectedNodes(flattenNodes, checked);
+
   return [nodes, flattenNodes];
 };
 
@@ -10,9 +12,9 @@ const initNodes = (input) => {
   let nodes = [];
   for (let i of input) {
     let n = {};
-    n.label = i.title + (i.count ? " (" + i.count + ")" : "");
+    n.label = i.label + (i.count ? " (" + i.count + ")" : "");
 
-    if (i.Children?.length > 0) n.children = initNodes(i.Children);
+    if (i.items?.length > 0) n.children = initNodes(i.items);
 
     nodes.push(n);
   }
@@ -49,14 +51,28 @@ const composeValue = (parents, label) => {
       value += valueLabel(parents[i].label) + "%*";
     }
   }
+
   value += valueLabel(label);
 
   return value;
 };
 
 const valueLabel = (label) => {
-  const leftBracket = label.lastIndexOf(" (");
+  let leftBracket = label.lastIndexOf(" (");
+  if (leftBracket <= 0) {
+    leftBracket = label.lastIndexOf("(");
+  }
+  if (leftBracket <= 0) {
+    return label;
+  }
   return label.substring(0, leftBracket);
+};
+
+export const updateSelectedNodes = (flattenNodes, checked) => {
+  for (let check of checked) {
+    const node = flattenNodes[check];
+    updateSelectedCounts(node, true);
+  }
 };
 
 export const updateSelectedCounts = (node, checked) => {
@@ -94,5 +110,6 @@ export const produceRootCheckedArray = (nodes) => {
         rootChecked = rootChecked.concat(produceRootCheckedArray(n.children));
     }
   }
+
   return rootChecked;
 };

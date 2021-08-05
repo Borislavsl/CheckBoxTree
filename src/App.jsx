@@ -1,16 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { render } from "react-dom";
 import axios from "axios";
 import "./styles.css";
-import { inputApplication } from "./jsonInputs/inputApplication";
-import { inputCatalog } from "./jsonInputs/inputCatalog";
-import { inputSupplier } from "./jsonInputs/inputSupplier";
-import { inputPriceRange } from "./jsonInputs/inputPriceRange";
+import { inputAll } from "./inputAll";
 import { composeDynamicSearchRequest } from "./requests/dynamicSearch";
 import CatalogTree from "./components/CatalogTree";
 
-render(<CatalogTree input={inputCatalog} />, document.getElementById("root"));
 function App() {
+  const [inputApplication, setInputApplication] = useState(
+    inputAll.application
+  );
+  const [inputCatalog, setInputCatalog] = useState(inputAll.catalogMenu);
+  const [inputSupplier, setInputSupplier] = useState(inputAll.supplierList);
+  const [inputPriceRange, setInputPriceRange] = useState(
+    inputAll.priceRangeList
+  );
+
   const [isPostBack, setIsPostBack] = useState(false);
   const [applicationChecked, setApplicationChecked] = useState([]);
   const [catalogChecked, setCatalogChecked] = useState([]);
@@ -31,7 +35,13 @@ function App() {
           "http://localhost:37481/DynamicSearch/Items",
           dynamicSearchRequest
         );
-        console.log(response.data);
+        const dynamicSearchResponse = response.data;
+        console.log(dynamicSearchResponse);
+
+        setInputApplication(dynamicSearchResponse.application);
+        setInputCatalog(dynamicSearchResponse.catalogMenu);
+        setInputSupplier(dynamicSearchResponse.supplierList);
+        setInputPriceRange(dynamicSearchResponse.priceRangeList);
       } catch (error) {
         console.log(error.response);
       }
