@@ -13,7 +13,7 @@ const initNodes = (input) => {
   for (let i of input) {
     if (i.count && i.count > 0) {
       let n = {};
-      n.label = i.label + (i.count ? " (" + i.count + ")" : "");
+      n.label = i.label + " (" + i.count + ")";
 
       if (i.items?.length > 0) n.children = initNodes(i.items);
 
@@ -65,14 +65,14 @@ const valueLabel = (label) => {
   return label.substring(0, leftBracket);
 };
 
-export const updateSelectedNodes = (flattenNodes, checked) => {
+const updateSelectedNodes = (flattenNodes, checked) => {
   for (let check of checked) {
     const node = flattenNodes[check];
-    updateSelectedCounts(node, true);
+    updateSelectedCounts(node, true, null);
   }
 };
 
-export const updateSelectedCounts = (node, checked) => {
+export const updateSelectedCounts = (node, checked, checkedLeaves) => {
   if (node) {
     const parents = node.parents;
     if (parents) {
@@ -85,17 +85,24 @@ export const updateSelectedCounts = (node, checked) => {
 
     node.selectedCount = checked ? node.childCount : 0;
 
-    updateChildrenChecked(node.children, checked);
+    return updateChildrenChecked(node, checked, checkedLeaves);
   }
 };
 
-const updateChildrenChecked = (children, checked) => {
-  if (children) {
-    for (let child of children) {
+const updateChildrenChecked = (node, checked, checkedLeaves) => {
+  if (node.children) {
+    for (let child of node.children) {
       child.selectedCount = checked ? child.childCount : 0;
-      updateChildrenChecked(child.children, checked);
+      checkedLeaves = updateChildrenChecked(child, checked, checkedLeaves);
+    }
+  } else if (checkedLeaves) {
+    if (checked) {
+      checkedLeaves.push(node.value);
+    } else {
+      checkedLeaves = checkedLeaves.filter((item) => item !== node.value);
     }
   }
+  return checkedLeaves;
 };
 
 export const produceRootCheckedArray = (nodes) => {
