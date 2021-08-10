@@ -1,34 +1,50 @@
-export const updateCheckedCountsAndLeaves = (node, checked, checkedLeaves) => {
+export const updateCheckedCountsAndLeaves = (node, checked, leaves) => {
   if (node) {
-    const parents = node.parents;
-    if (parents) {
-      const changeCount = checked
-        ? node.childCount - node.checkedCount
-        : -node.checkedCount;
+    updateNodeAndParentsCheckedCount(node, checked);
 
-      for (let parent of parents) parent.checkedCount += changeCount;
-    }
-
-    node.checkedCount = checked ? node.childCount : 0;
-
-    return updateCheckedChildren(node, checked, checkedLeaves);
+    leaves = updateLeavesCheckedStatus(node, checked, leaves);
+    return updateChildrenCheckedCountAndLeaves(node, checked, leaves);
   }
 };
 
-const updateCheckedChildren = (node, checked, checkedLeaves) => {
+export const updateNodeAndParentsCheckedCount = (node, checked) => {
+  if (!node) return;
+
+  const parents = node.parents;
+  if (parents) {
+    const changeCount = checked
+      ? node.childCount - node.checkedCount
+      : -node.checkedCount;
+
+    for (let parent of parents) parent.checkedCount += changeCount;
+  }
+
+  node.checkedCount = checked ? node.childCount : 0;
+};
+
+const updateChildrenCheckedCountAndLeaves = (node, checked, leaves) => {
   if (node.children) {
     for (let child of node.children) {
       child.checkedCount = checked ? child.childCount : 0;
-      checkedLeaves = updateCheckedChildren(child, checked, checkedLeaves);
+      leaves = updateChildrenCheckedCountAndLeaves(child, checked, leaves);
     }
-  } else if (checkedLeaves) {
-    if (checked) {
-      checkedLeaves.push(node.value);
-    } else {
-      checkedLeaves = checkedLeaves.filter((item) => item !== node.value);
+  } else {
+    leaves[node.value] = checked;
+  }
+
+  return leaves;
+};
+
+// TODO : make more efficient search
+const updateLeavesCheckedStatus = (node, checked, leaves) => {
+  if (node.children) {
+    for (let leaf in leaves) {
+      if (leaves[leaf] !== checked && leaf.startsWith(node.value)) {
+        leaves[leaf] = checked;
+      }
     }
   }
-  return checkedLeaves;
+  return leaves;
 };
 
 export const produceRootCheckedArray = (nodes) => {

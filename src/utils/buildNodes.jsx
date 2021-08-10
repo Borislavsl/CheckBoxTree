@@ -1,13 +1,17 @@
-import { updateCheckedCountsAndLeaves } from "./checkedNodes";
+import { updateNodeAndParentsCheckedCount } from "./checkedNodes";
 
-export const build = (input, checked) => {
+var currentLeaves;
+
+export const build = (input, leaves) => {
   let nodes = initNodes(input);
+
   let flattenNodes = {};
+  currentLeaves = {};
   prepareNodes(nodes, flattenNodes, null);
 
-  updateCheckedCounts(flattenNodes, checked);
+  const checkedLeaves = getCheckedLeavesAndUpdateCheckedCountsUp(leaves);
 
-  return [nodes, flattenNodes];
+  return [nodes, flattenNodes, checkedLeaves];
 };
 
 const initNodes = (input) => {
@@ -39,6 +43,8 @@ const prepareNodes = (nodes, flattenNodes, parents) => {
 
       n.childCount = prepareNodes(n.children, flattenNodes, childParents);
     } else {
+      currentLeaves[n.value] = n;
+
       n.childCount = 1;
     }
 
@@ -67,9 +73,13 @@ const valueLabel = (label) => {
   return label.substring(0, leftBracket);
 };
 
-const updateCheckedCounts = (flattenNodes, checked) => {
-  for (let check of checked) {
-    const node = flattenNodes[check];
-    updateCheckedCountsAndLeaves(node, true, null);
+const getCheckedLeavesAndUpdateCheckedCountsUp = (leaves) => {
+  let checkedLeaves = [];
+  for (let leaf in currentLeaves) {
+    if (leaves[leaf] === true) {
+      updateNodeAndParentsCheckedCount(currentLeaves[leaf], true);
+      checkedLeaves.push(leaf);
+    }
   }
+  return checkedLeaves;
 };

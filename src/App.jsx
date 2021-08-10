@@ -1,11 +1,23 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./styles.css";
+import { css } from "@emotion/react";
+import FadeLoader from "react-spinners/FadeLoader";
 import { inputAll } from "./inputAll";
 import { composeDynamicSearchRequest } from "./requests/dynamicSearch";
 import CatalogTree from "./components/CatalogTree";
 
+const override = css`
+  display: inline;
+  margin: 0;
+  border-color: rgb(255, 0, 0);
+`;
+
 function App() {
+  // For spinner
+  let [loading, setLoading] = useState(false);
+  let [color, setColor] = useState("#ff0000");
+
   const [inputApplication, setInputApplication] = useState(
     inputAll.application
   );
@@ -20,9 +32,11 @@ function App() {
   const [catalogChecked, setCatalogChecked] = useState([]);
   const [supplierChecked, setSupplierChecked] = useState([]);
   const [priceRangeChecked, setPriceRangeChecked] = useState([]);
+  const [totalItems, setTotalItems] = useState(0);
 
   useEffect(() => {
     const dynamicSearch = async () => {
+      setLoading(true);
       try {
         const dynamicSearchRequest = composeDynamicSearchRequest(
           applicationChecked,
@@ -42,9 +56,11 @@ function App() {
         setInputCatalog(dynamicSearchResponse.catalogMenu);
         setInputSupplier(dynamicSearchResponse.supplierList);
         setInputPriceRange(dynamicSearchResponse.priceRangeList);
+        setTotalItems(dynamicSearchResponse.itemTotalCount);
       } catch (error) {
         console.log(error.response);
       }
+      setLoading(false);
     };
     if (isPostBack) {
       dynamicSearch();
@@ -70,27 +86,61 @@ function App() {
     setPriceRangeChecked(rootChecked);
   };
 
+  function displayHeader() {
+    return (
+      <div>
+        <h1 style={loading ? { color: "red" } : { color: "green" }}>
+          {loading
+            ? "Please, wait loading new catalog trees ... "
+            : "Please, make your choice:"}
+        </h1>
+        <FadeLoader
+          color={color}
+          loading={loading}
+          css={override}
+          height={3}
+          margin={0}
+          radius={0.5}
+        />
+        <h1 style={{ marginLeft: 300 }}>
+          Total: {loading ? "..." : totalItems} items in response.
+        </h1>
+      </div>
+    );
+  }
+
   return (
     <>
-      <h1>Application</h1>
+      {displayHeader()}
+      <h1 style={{ marginTop: 20 }}>Application</h1>
       <CatalogTree
         input={inputApplication}
         onFilterChecked={onApplicationChecked}
+        disabled={loading}
       />
       <br />
 
       <h1>Catalogs</h1>
-      <CatalogTree input={inputCatalog} onFilterChecked={onCatalogChecked} />
+      <CatalogTree
+        input={inputCatalog}
+        onFilterChecked={onCatalogChecked}
+        disabled={loading}
+      />
       <br />
 
       <h1>Suppliers</h1>
-      <CatalogTree input={inputSupplier} onFilterChecked={onSupplierChecked} />
+      <CatalogTree
+        input={inputSupplier}
+        onFilterChecked={onSupplierChecked}
+        disabled={loading}
+      />
       <br />
 
       <h1>PriceRange</h1>
       <CatalogTree
         input={inputPriceRange}
         onFilterChecked={onPriceRangeChecked}
+        disabled={loading}
       />
       <br />
     </>
