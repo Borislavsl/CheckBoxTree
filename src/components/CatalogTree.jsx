@@ -3,18 +3,12 @@ import CheckboxTree from "react-checkbox-tree";
 import "react-checkbox-tree/lib/react-checkbox-tree.css";
 import { build } from "../utils/buildNodes";
 import {
-  updateCheckedCountsAndLeaves,
+  updateCheckedCountsAndTreeLeaves,
   produceRootCheckedArray,
-} from "../utils/checkedNodes";
+} from "../utils/processNodes";
 
 const CatalogTree = ({ input, onFilterChecked, disabled }) => {
   const [expanded, setExpanded] = useState([]);
-
-  // leaves object contains as properties the values of the leaf nodes and their checked status, during the whole session.
-  const [leaves, setLeaves] = useState({});
-
-  // checked array of strings contains values of the checked leaf nodes, during the current interaction (between user checks/unchecks).
-  const [checked, setChecked] = useState([]);
 
   // nodes is a tree used as props to the CheckboxTree component, it is constructed after each check/uncheck.
   // flattenNodes contains all nodes in a flatten object having as a property name - a node value, and as property value - the reference to the node itself.
@@ -26,10 +20,17 @@ const CatalogTree = ({ input, onFilterChecked, disabled }) => {
     [],
   ]);
 
+  // treeLeaves object contains paths to leaves, in order to have fast access to the children leaves of a node in nodes.
+  // It accumulates its structure with the paths to new leaves which are checked/unchecked by the user, during the whole session.
+  // leaves objects contain as a property the checked status, during the whole session.
+  const [treeLeaves, setTreeLeaves] = useState({});
+
+  // checked array of strings contains values of the checked leaf nodes, during the current interaction (between user checks/unchecks).
+  const [checked, setChecked] = useState([]);
+
   useEffect(() => {
-    const buildResult = build(input, leaves);
+    const buildResult = build(input, treeLeaves);
     setNodes(buildResult); // Set the nodes props for the CheckboxTree component from the input props, which is the response of the previous request.
-    // leaves are passed as a second parameter to update the checkedCount property of nodes.
 
     setChecked(buildResult[2]); // Set the checked props for the CheckboxTree component from the leaves, which are kept during the whole session
 
@@ -40,13 +41,13 @@ const CatalogTree = ({ input, onFilterChecked, disabled }) => {
     setChecked(checked);
 
     // The checkedCount property of the target node, of its ancestors and successors, should be updated
-    // leaves object should be updated after user check/uncheck. leaves will be used after new nodes are build from the request
-    const newLeaves = updateCheckedCountsAndLeaves(
+    // treeLeaves object should be updated after user check/uncheck. treeLeaves will be used after new nodes are build from the request
+    const newTreeLeaves = updateCheckedCountsAndTreeLeaves(
       flattenNodes[targetNode.value],
       targetNode.checked,
-      leaves
+      treeLeaves
     );
-    setLeaves(newLeaves);
+    setTreeLeaves(newTreeLeaves);
 
     let rootChecked = produceRootCheckedArray(nodes);
     onFilterChecked(rootChecked);

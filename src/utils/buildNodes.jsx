@@ -1,15 +1,15 @@
-import { updateNodeAndParentsCheckedCount } from "./checkedNodes";
+import { delimiter } from "./constants";
+import {
+  getTreeLeavesNode,
+  updateNodeAndParentsCheckedCount,
+} from "./processNodes";
 
-var currentLeaves;
-
-export const build = (input, leaves) => {
+export const build = (input, treeLeaves) => {
   let nodes = initNodes(input);
 
   let flattenNodes = {};
-  currentLeaves = {};
-  prepareNodes(nodes, flattenNodes, null);
-
-  const checkedLeaves = getCheckedLeavesAndUpdateCheckedCountsUp(leaves);
+  let checkedLeaves = [];
+  prepareNodes(nodes, flattenNodes, checkedLeaves, treeLeaves, null);
 
   return [nodes, flattenNodes, checkedLeaves];
 };
@@ -29,7 +29,13 @@ const initNodes = (input) => {
   return nodes;
 };
 
-const prepareNodes = (nodes, flattenNodes, parents) => {
+const prepareNodes = (
+  nodes,
+  flattenNodes,
+  checkedLeaves,
+  treeLeaves,
+  parents
+) => {
   let totalCount = 0;
 
   for (let n of nodes) {
@@ -41,11 +47,20 @@ const prepareNodes = (nodes, flattenNodes, parents) => {
       let childParents = [n];
       if (parents) childParents = parents.concat(childParents);
 
-      n.childCount = prepareNodes(n.children, flattenNodes, childParents);
+      n.childCount = prepareNodes(
+        n.children,
+        flattenNodes,
+        checkedLeaves,
+        treeLeaves,
+        childParents
+      );
     } else {
-      currentLeaves[n.value] = n;
-
       n.childCount = 1;
+
+      if (getTreeLeavesNode(n.value, treeLeaves)?.checked === true) {
+        updateNodeAndParentsCheckedCount(n, true);
+        checkedLeaves.push(n.value);
+      }
     }
 
     flattenNodes[n.value] = n;
@@ -58,7 +73,7 @@ const composeValue = (parents, label) => {
   let value = "";
   if (parents) {
     for (let i = 0; i < parents.length; i++) {
-      value += valueLabel(parents[i].label) + "%*";
+      value += valueLabel(parents[i].label) + delimiter;
     }
   }
 
@@ -71,15 +86,4 @@ const valueLabel = (label) => {
   let leftBracket = label.lastIndexOf(" (");
 
   return label.substring(0, leftBracket);
-};
-
-const getCheckedLeavesAndUpdateCheckedCountsUp = (leaves) => {
-  let checkedLeaves = [];
-  for (let leaf in currentLeaves) {
-    if (leaves[leaf] === true) {
-      updateNodeAndParentsCheckedCount(currentLeaves[leaf], true);
-      checkedLeaves.push(leaf);
-    }
-  }
-  return checkedLeaves;
 };
