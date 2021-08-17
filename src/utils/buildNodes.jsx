@@ -7,11 +7,10 @@ import {
 export const build = (input, treeLeaves) => {
   let nodes = initNodes(input);
 
-  let flattenNodes = {};
   let checkedLeaves = [];
-  prepareNodes(nodes, flattenNodes, checkedLeaves, treeLeaves, null);
+  prepareNodes(nodes, checkedLeaves, treeLeaves, null);
 
-  return [nodes, flattenNodes, checkedLeaves];
+  return [nodes, checkedLeaves];
 };
 
 const initNodes = (input) => {
@@ -29,13 +28,7 @@ const initNodes = (input) => {
   return nodes;
 };
 
-const prepareNodes = (
-  nodes,
-  flattenNodes,
-  checkedLeaves,
-  treeLeaves,
-  parents
-) => {
+const prepareNodes = (nodes, checkedLeaves, treeLeaves, parents) => {
   let totalCount = 0;
 
   for (let n of nodes) {
@@ -49,7 +42,6 @@ const prepareNodes = (
 
       n.childCount = prepareNodes(
         n.children,
-        flattenNodes,
         checkedLeaves,
         treeLeaves,
         childParents
@@ -63,7 +55,6 @@ const prepareNodes = (
       }
     }
 
-    flattenNodes[n.value] = n;
     totalCount += n.childCount;
   }
   return totalCount;
